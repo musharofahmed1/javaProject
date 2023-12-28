@@ -33,25 +33,47 @@ public class CricketAcademyGUI extends JFrame {
         saveButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                // Assuming you have text fields for player name, duration,
-                // and a combo box for course type
-                int id = Integer.parseInt(JOptionPane.showInputDialog("Player ID:"));
-                String playerName = JOptionPane.showInputDialog("Enter Player Name:");
-                int duration = Integer.parseInt(JOptionPane.showInputDialog("Enter Duration (minutes):"));
-                Category[] values = Category.values();
-                Category category = (Category) JOptionPane.showInputDialog(null,
-                        "Select Course Type:", "Activity Type",
-                        JOptionPane.QUESTION_MESSAGE, null,
-                        values, values[0]);
-
-                manager.addPractice(id,playerName, category, duration);
-                manager.saveData();
-                updateTableData();
+                try {
+                    Season[] values = Season.values();
+                    Season season = (Season) JOptionPane.showInputDialog(null,
+                            "Season:", "Choose",
+                            JOptionPane.QUESTION_MESSAGE, null,
+                            values, values[0]);
+    
+                    int id = Integer.parseInt(JOptionPane.showInputDialog("Player ID:"));
+                    String playerName = JOptionPane.showInputDialog("Enter Player Name:");
+    
+                    // Validate player name (ensure it is not empty and contains at least one non-whitespace character)
+                    if (playerName.trim().isEmpty()) {
+                        throw new IllegalArgumentException("Player name cannot be empty.");
+                    }
+    
+                    int duration = Integer.parseInt(JOptionPane.showInputDialog("Enter Duration (minutes):"));
+                    Category[] values1 = Category.values();
+                    Category category = (Category) JOptionPane.showInputDialog(null,
+                            "Category:", "Activity Type",
+                            JOptionPane.QUESTION_MESSAGE, null,
+                            values1, values1[0]);
+    
+                    // Validate inputs
+                    if (id < 0 || duration < 0) {
+                        throw new IllegalArgumentException("ID and duration must be non-negative.");
+                    }
+    
+                    manager.addPractice(season, id, playerName, category, duration);
+                    manager.saveData();
+                    updateTableData();
+                } catch (NumberFormatException ex) {
+                    JOptionPane.showMessageDialog(null, "Invalid input. Please enter a valid number for ID and Duration.", "Error", JOptionPane.ERROR_MESSAGE);
+                } catch (IllegalArgumentException ex) {
+                    JOptionPane.showMessageDialog(null, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                }
             }
         });
-
+    
         add(saveButton, BorderLayout.NORTH);
     }
+    
 
     private void createRetrieveButton() {
         JButton retrieveButton = new JButton("Retrieve Data");
@@ -69,9 +91,10 @@ public class CricketAcademyGUI extends JFrame {
     private void createTable() {
         tableModel = new DefaultTableModel();
         dataTable = new JTable(tableModel);
-         tableModel.addColumn("player ID");
+        tableModel.addColumn("Season");
+        tableModel.addColumn("Player ID");
         tableModel.addColumn("Player Name");
-        tableModel.addColumn("Course Type");
+        tableModel.addColumn("Category Type");
         tableModel.addColumn("Duration (min)");
 
         JScrollPane scrollPane = new JScrollPane(dataTable);
@@ -84,7 +107,7 @@ public class CricketAcademyGUI extends JFrame {
         ArrayList<MatchPractice> data = manager.getPracticeList();
 
         for (MatchPractice practice : data) {
-            Object[] rowData = {practice.getId(),practice.getPlayerName(), practice.getCategory(), practice.getDurationInMinutes()};
+            Object[] rowData = {practice.getSeason(), practice.getId(), practice.getPlayerName(), practice.getCategory(), practice.getDurationInMinutes()};
             tableModel.addRow(rowData);
         }
     }

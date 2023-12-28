@@ -35,15 +35,16 @@ public class CricketAcademyGUI extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 // Assuming you have text fields for player name, duration,
                 // and a combo box for course type
+                int id = Integer.parseInt(JOptionPane.showInputDialog("Player ID:"));
                 String playerName = JOptionPane.showInputDialog("Enter Player Name:");
                 int duration = Integer.parseInt(JOptionPane.showInputDialog("Enter Duration (minutes):"));
-                CourseType[] values = CourseType.values();
-                CourseType courseType = (CourseType) JOptionPane.showInputDialog(null,
+                Category[] values = Category.values();
+                Category category = (Category) JOptionPane.showInputDialog(null,
                         "Select Course Type:", "Activity Type",
                         JOptionPane.QUESTION_MESSAGE, null,
                         values, values[0]);
 
-                manager.addPractice(playerName, courseType, duration);
+                manager.addPractice(id,playerName, category, duration);
                 manager.saveData();
                 updateTableData();
             }
@@ -68,6 +69,7 @@ public class CricketAcademyGUI extends JFrame {
     private void createTable() {
         tableModel = new DefaultTableModel();
         dataTable = new JTable(tableModel);
+         tableModel.addColumn("player ID");
         tableModel.addColumn("Player Name");
         tableModel.addColumn("Course Type");
         tableModel.addColumn("Duration (min)");
@@ -82,7 +84,7 @@ public class CricketAcademyGUI extends JFrame {
         ArrayList<MatchPractice> data = manager.getPracticeList();
 
         for (MatchPractice practice : data) {
-            Object[] rowData = {practice.getPlayerName(), practice.getCourseType(), practice.getDurationInMinutes()};
+            Object[] rowData = {practice.getId(),practice.getPlayerName(), practice.getCategory(), practice.getDurationInMinutes()};
             tableModel.addRow(rowData);
         }
     }
